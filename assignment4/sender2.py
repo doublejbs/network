@@ -9,6 +9,7 @@ sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sender.bind((socket.gethostbyname(socket.gethostname()), 0))
 ackCount = 0
 once = 1
+
 def rcvMsg(sock):
     global ackCount
     while True:
@@ -31,8 +32,6 @@ def twoSecMsg():
     timer = threading.Timer(2.1, twoSecMsg)
     if allPck < 100:
         timer.start()
-
-
 
 def sendMsg(sock):
     global allPck, pckCount

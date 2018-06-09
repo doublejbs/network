@@ -5,6 +5,7 @@ import datetime
 ip = socket.gethostbyname(socket.gethostname()) #input("enter receiver ip: ")
 initSendRate = 10 #int(input("enter initial sending rate: "))
 
+
 sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sender.bind((socket.gethostbyname(socket.gethostname()), 0))
 ackCount = 0
@@ -43,6 +44,8 @@ def sendMsg(sock):
     timer = threading.Timer(1/initSendRate, sendMsg, args=[sock])
     if allPck < 100:
         timer.start()
+    elif allPck == 100:
+        sender.sendto('exit'.encode('utf-8'), (ip, 10080))
 
 run = 0
 allPck = 0
