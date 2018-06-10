@@ -55,7 +55,7 @@ def twoSecMsg():
 
     try:
         print("incoming rate: ", inPck/2, "/2sec")
-        print("forwarding rate: ", forPck/2, "/2sec")
+        print("forwarding rate: ", forPck/len(addrList)/2, "/2sec")
         print("avg queue occupancy: ", (getAvgOcc()/len(addrList)/20)/qSize)
         inPck = 0
         forPck = 0
