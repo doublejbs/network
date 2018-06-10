@@ -14,6 +14,8 @@ agQueue = []
 once = 1
 neOnce = 1
 occList = {}
+inPck = 0
+forPck = 0
 
 def wait():
     t = threading.Thread(target=wait)
@@ -25,7 +27,7 @@ def ne2ag(sock, addr, botRate):
     _go = go.get(addr[1])
     if _go:
         neQueue.get()
-        forPck[addr[1]] += 1
+        forPck += 1
         sock.sendto('ack'.encode('utf-8'), addr)
 
     timer = threading.Timer(1/botRate, ne2ag, args=[sock, addr, botRate])
@@ -41,59 +43,66 @@ def ntwrkEmul(qSize, data, addr):
         pass
     #bottleneck link rate동안 ne에서 ag로!
 
-def twoSecMsg(addr):
+def twoSecMsg():
     global once, run, qSize
     global inPck, forPck, occList
-    neQueue = qList[addr[1]]
 
     try:
-        print(addr[1], "incoming rate: ", inPck.get(addr[1]), "/2sec")
-        print("forwarding rate: ", forPck.get(addr[1]), "/2sec")
-        print("avg queue occupancy: ", (occList.get(addr[1])/20)/qSize)
-        inPck[addr[1]] = 0
-        forPck[addr[1]] = 0
-        occList[addr[1]] = 0
+        print("incoming rate: ", inPck/20, "/2sec")
+        print("forwarding rate: ", forPck/20, "/2sec")
+        print("avg queue occupancy: ", (getAvgOcc()/20)/qSize)
+        inPck = 0
+        forPck = 0
     except Exception as e:
-        print(e)
-    timer = threading.Timer(2.1, twoSecMsg, args=[addr])
-    if run.get(addr[1]):
+        print('1', e)
+
+    timer = threading.Timer(2.1, twoSecMsg)
+    if 1:
         timer.start()
-    else:
-        print(addr[1], ': end')
+
 
 qList = {}
 go = {}
-inPck = {}
-forPck = {}
+
 run = {}
+addrList = []
 
 def avgOccupancy(addr):
     global occList, qList, run
-
-
     occ = qList.get(addr[1]).qsize()
     occList[addr[1]] = occList.get(addr[1]) + occ
     t = threading.Timer(0.1, avgOccupancy, args=[addr])
     if run.get(addr[1]):
         t.start()
 
+def getAvgOcc():
+    global occList, addrList
+    i = 0
+    sum = 0
+    try:
+        while addrList[i]:
+            temp = occList.get(addrList[i])
+            sum = sum + temp
+            i += 1
+    except Exception as e:
+        pass
+    return sum
+
 
 
 def rcvMsg(sock):
-    global inPck, qSize, index, qList, go, run
+    global inPck, qSize, index, qList, go, run, addrList
     while True:
         try:
             data, addr = sock.recvfrom(1024)
             #print(addr[1])
             if data.decode() == 'enter':
+                addrList.append(addr[1])
                 run[addr[1]] = 1
                 occList[addr[1]] = 0
-                inPck[addr[1]] = 0
-                forPck[addr[1]] = 0
                 go[addr[1]] = 0
                 neQueue = Queue()
                 qList[addr[1]] = neQueue
-                twoSecMsg(addr)
                 ne2ag(sock, addr, botRate)
                 avgOccupancy(addr)
                 go[addr[1]] = 1
@@ -101,7 +110,7 @@ def rcvMsg(sock):
                 run[addr[1]] = 0
 
             elif data:
-                inPck[addr[1]] += 1
+                inPck += 1
                 ntwrkEmul(qSize, data, addr)
 
         except:
@@ -111,6 +120,7 @@ def rcvMsg(sock):
 addr = []
 runOnce = 1
 wait()
+twoSecMsg()
 t = threading.Thread(target=rcvMsg, args=(receiver,))
 t.daemon = True
 t.start()

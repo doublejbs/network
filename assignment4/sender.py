@@ -3,7 +3,7 @@ import time
 import datetime
 
 ip = socket.gethostbyname(socket.gethostname()) #input("enter receiver ip: ")
-initSendRate = 10 #int(input("enter initial sending rate: "))
+initSendRate = int(input("enter initial sending rate: "))
 
 
 sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,8 +24,8 @@ def twoSecMsg():
         once = 0
     global pckCount, ackCount
     #print('temp: ', datetime.datetime.now())
-    print("sending rate: ", pckCount, "/2sec")
-    print("goodput: ", ackCount, "/2sec")
+    print("sending rate: ", pckCount/20, "/2sec")
+    print("goodput: ", ackCount/20, "/2sec")
     print("goodput ratio: ", ackCount/pckCount)
     pckCount = 0
     ackCount = 0

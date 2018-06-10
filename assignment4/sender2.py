@@ -24,8 +24,8 @@ def twoSecMsg():
         once = 0
     global pckCount, ackCount
     #print('temp: ', datetime.datetime.now())
-    print("sending rate: ", pckCount, "/2sec")
-    print("goodput: ", ackCount, "/2sec")
+    print("sending rate: ", pckCount/20, "/2sec")
+    print("goodput: ", ackCount/20, "/2sec")
     print("goodput ratio: ", ackCount/pckCount)
     pckCount = 0
     ackCount = 0
