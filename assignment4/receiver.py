@@ -5,7 +5,7 @@ from queue import Queue
 
 botRate = int(input("bottle neck link rate: "))
 qSize = int(input("queue size: "))
-
+print(socket.gethostbyname(socket.gethostname()))
 receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 receiver.bind((socket.gethostbyname(socket.gethostname()), 10080))
 
@@ -48,9 +48,9 @@ def twoSecMsg():
     global inPck, forPck, occList
 
     try:
-        print("incoming rate: ", inPck/20, "/2sec")
-        print("forwarding rate: ", forPck/20, "/2sec")
-        print("avg queue occupancy: ", (getAvgOcc()/20)/qSize)
+        print("incoming rate: ", inPck/2, "/2sec")
+        print("forwarding rate: ", forPck/2, "/2sec")
+        print("avg queue occupancy: ", (getAvgOcc()/len(addrList)/20)/qSize)
         inPck = 0
         forPck = 0
     except Exception as e:
@@ -83,7 +83,9 @@ def getAvgOcc():
         while addrList[i]:
             temp = occList.get(addrList[i])
             sum = sum + temp
+            occList[addrList[i]] = 0
             i += 1
+
     except Exception as e:
         pass
     return sum
@@ -95,7 +97,7 @@ def rcvMsg(sock):
     while True:
         try:
             data, addr = sock.recvfrom(1024)
-            #print(addr[1])
+
             if data.decode() == 'enter':
                 addrList.append(addr[1])
                 run[addr[1]] = 1

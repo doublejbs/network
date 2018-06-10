@@ -1,8 +1,8 @@
 import socket, threading
 import time
-import datetime
 
-ip = socket.gethostbyname(socket.gethostname()) #input("enter receiver ip: ")
+
+ip = input("enter receiver ip: ")
 initSendRate = int(input("enter initial sending rate: "))
 
 
@@ -10,6 +10,13 @@ sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sender.bind((socket.gethostbyname(socket.gethostname()), 0))
 ackCount = 0
 once = 1
+
+j=0
+text = '11111'
+while j<199:
+    text = '11111' + text
+    j += 1
+
 def rcvMsg(sock):
     global ackCount
     while True:
@@ -24,28 +31,27 @@ def twoSecMsg():
         once = 0
     global pckCount, ackCount
     #print('temp: ', datetime.datetime.now())
-    print("sending rate: ", pckCount/20, "/2sec")
-    print("goodput: ", ackCount/20, "/2sec")
+    print("sending rate: ", pckCount/2, "/2sec")
+    print("goodput: ", ackCount/2, "/2sec")
     print("goodput ratio: ", ackCount/pckCount)
     pckCount = 0
     ackCount = 0
     timer = threading.Timer(2.1, twoSecMsg)
-    if allPck < 100:
+    if 1:
         timer.start()
 
 
 
 def sendMsg(sock):
-    global allPck, pckCount
-    sender.sendto('ok'.encode('utf-8'), (ip, 10080))
+    global allPck, pckCount, text
+    sender.sendto(text.encode('utf-8'), (ip, 10080))
     #print('pkt', pckCount, datetime.datetime.now())
     allPck += 1
     pckCount += 1
     timer = threading.Timer(1/initSendRate, sendMsg, args=[sock])
-    if allPck < 100:
+    if 1:
         timer.start()
-    elif allPck == 100:
-        sender.sendto('exit'.encode('utf-8'), (ip, 10080))
+
 
 run = 0
 allPck = 0
